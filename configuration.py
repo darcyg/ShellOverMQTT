@@ -7,6 +7,10 @@ class BrokerConfiguration:
         self.Login = login
         self.Password = password
 
+class ClientConfiguration:
+    def __init__(self, clientId=None):
+        self.ClientId = clientId
+
 class Configuration:
     required = dict(
             MQTTBroker=["Address", "Port", "Login", "Password"],
@@ -29,9 +33,12 @@ class Configuration:
                     raise NoOptionError(option, section)
 
     def GetBrokerConfiguration(self):
-        self.parser.read(self.filename)
         address = self.parser.get("MQTTBroker", "Address")
-        port = self.parser.get("MQTTBroker", "Port")
+        port = int(self.parser.get("MQTTBroker", "Port"))
         login = self.parser.get("MQTTBroker", "Login")
         password = self.parser.get("MQTTBroker", "Password")
         return BrokerConfiguration(address=address, port=port, login=login, password=password)
+
+    def GetClientConfiguration(self):
+        clientId = self.parser.get("MQTTClient", "Name")
+        return ClientConfiguration(clientId=clientId)
