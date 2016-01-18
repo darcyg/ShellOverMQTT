@@ -1,0 +1,30 @@
+{
+  "version": 1,
+  "disable_existing_loggers": false,
+  "formatters": {
+    "simple": {
+      "format": "%(asctime)s [%(name)s] [%(levelname)s]: %(message)s"
+    }
+  },
+
+  "handlers": {
+    "timed_rotating_file_handler": {
+      "class": "logging.handlers.TimedRotatingFileHandler",
+      "level": "DEBUG",
+      "formatter": "simple",
+      "filename": ".log",
+      "backupCount": 30,
+      "when": "midnight"
+    }
+  },
+
+  "loggers": {
+    "logger": {
+      "level": "DEBUG",
+      "handlers": [ "timed_rotating_file_handler" ],
+      "propagate": "no"
+    }
+  }
+}
+
+
