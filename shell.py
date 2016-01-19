@@ -6,13 +6,15 @@ import logging
 class Shell:
     def __init__(self, name=None, mqttClient=None, config=None):
         self._logger = logging.getLogger("logger")
-        if(name in None):
+        if(name is None):
             raise TypeError("Shell name is None")
         if(mqttClient is None):
             raise TypeError("MQTT client is None. Proper object required.")
         if(config is None):
             raise TypeError("Configuration is None")
+        self._name = name
         self._config = config
+        self._listeningTopicPrefix = "Shell/"
         self._messageQueue = Queue()
         self._mqttClient = mqttClient
         self._mqttClient.on_connect = self._onConnectCallback
@@ -40,7 +42,7 @@ class Shell:
 
     def Run(self):
         self._mqttClient.connect(self._config.Address)
-        self._mqttClient.subscribe("#", 0)
+        self._mqttClient.subscribe(self._buildShellListeningTopic(), 0)
 
         rc = 0
         while rc == 0:
@@ -48,6 +50,9 @@ class Shell:
                 self._handleNextMessage()
             rc = self._mqttClient.loop()
         return rc
+
+    def _buildShellListeningTopic(self):
+        return "".join([self._listeningTopicPrefix, self._name])
 
 
 
