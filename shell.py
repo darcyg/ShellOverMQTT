@@ -2,6 +2,7 @@ import queue
 from queue import Queue
 from subprocess import check_output
 import logging
+from mqtt.client import MQTT_LOG_DEBUG, MQTT_LOG_ERR, MQTT_LOG_INFO, MQTT_LOG_NOTICE, MQTT_LOG_WARNING
 
 class Shell:
     def __init__(self, name=None, mqttClient=None, config=None):
@@ -19,6 +20,7 @@ class Shell:
         self._mqttClient = mqttClient
         self._mqttClient.on_connect = self._onConnectCallback
         self._mqttClient.on_message = self._onMessageCallback
+        self._mqttClient.on_log = self._onLogCallback
 
     def _onMessageCallback(self, mqttc, obj, msg):
         try:
@@ -28,6 +30,16 @@ class Shell:
 
     def _onConnectCallback(self, mqttc, obj, flags, rc):
         self._logger.info("Connected to MQTT broker")
+
+    def _onLogCallback(self, mqttc, obj, level, string):
+        switch = {
+            MQTT_LOG_INFO: self._logger.info,
+            MQTT_LOG_NOTICE: self._logger.info,
+            MQTT_LOG_WARNING: self._logger.warn,
+            MQTT_LOG_ERR: self._logger.error,
+            MQTT_LOG_DEBUG: self._logger.debug
+        }
+        switch.get(level)(string)
 
     def _handleNextMessage(self):
         try:
