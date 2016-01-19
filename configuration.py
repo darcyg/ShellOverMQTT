@@ -14,7 +14,7 @@ class ClientConfiguration:
         self.ClientId = clientId
 
 
-class Configuration(BrokerConfiguration, ClientConfiguration):
+class CommonConfiguration(BrokerConfiguration, ClientConfiguration):
     #TODO: Change to def __init__(self, *args, **kwargs)
     #Read 'What is a clean, ptyhonic way to have multiple constructors in Python?' on stackoverflow
     def __init__(self, address=None, port=1883, login=None, password=None, clientId=None):
@@ -60,4 +60,4 @@ class Configuration:
         login = self.parser.get("MQTTBroker", "Login")
         password = self.parser.get("MQTTBroker", "Password")
         clientId = self.parser.get("MQTTClient", "Name")
-        return Configuration(address=address, port=port, login=login, password=password, clientId=clientId)
+        return CommonConfiguration(address=address, port=port, login=login, password=password, clientId=clientId)
