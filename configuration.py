@@ -1,5 +1,6 @@
 from configparser import ConfigParser, NoSectionError, NoOptionError
 
+
 class BrokerConfiguration:
     def __init__(self, address=None, port=1883, login=None, password=None):
         self.Address = address
@@ -7,9 +8,19 @@ class BrokerConfiguration:
         self.Login = login
         self.Password = password
 
+
 class ClientConfiguration:
     def __init__(self, clientId=None):
         self.ClientId = clientId
+
+
+class Configuration(BrokerConfiguration, ClientConfiguration):
+    #TODO: Change to def __init__(self, *args, **kwargs)
+    #Read 'What is a clean, ptyhonic way to have multiple constructors in Python?' on stackoverflow
+    def __init__(self, address=None, port=1883, login=None, password=None, clientId=None):
+        BrokerConfiguration.__init__(self, address, port, login, password)
+        ClientConfiguration.__init__(self, clientId)
+
 
 class Configuration:
     required = dict(
@@ -42,3 +53,11 @@ class Configuration:
     def GetClientConfiguration(self):
         clientId = self.parser.get("MQTTClient", "Name")
         return ClientConfiguration(clientId=clientId)
+
+    def GetConfiguration(self):
+        address = self.parser.get("MQTTBroker", "Address")
+        port = int(self.parser.get("MQTTBroker", "Port"))
+        login = self.parser.get("MQTTBroker", "Login")
+        password = self.parser.get("MQTTBroker", "Password")
+        clientId = self.parser.get("MQTTClient", "Name")
+        return Configuration(address=address, port=port, login=login, password=password, clientId=clientId)
