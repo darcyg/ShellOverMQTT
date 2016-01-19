@@ -7,8 +7,6 @@ import json
 import os
 import shell
 
-Hostname = socket.gethostname()
-
 
 def SetupLogging():
     path = "logging.json"
@@ -35,8 +33,9 @@ def LoadConfiguration():
 def main():
     SetupLogging()
     config = LoadConfiguration()
-    mqttClient = mqtt.Client
-    myShell = shell.Shell(mqttClient=mqttClient, configuration=config)
+    hostname = socket.gethostname()
+    mqttClient = mqtt.Client()
+    myShell = shell.Shell(name=hostname, mqttClient=mqttClient, config=config)
 
     myShell.Run()
 
