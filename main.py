@@ -5,6 +5,7 @@ import logging
 import logging.config
 import json
 import os
+import shell
 
 Hostname = socket.gethostname()
 
@@ -26,12 +27,18 @@ def SetupLogging():
         raise FileNotFoundError("Logging configuration")
 
 
+def LoadConfiguration():
+    configuration = Configuration(".config")
+    return configuration.GetConfiguration()
+
+
 def main():
     SetupLogging()
-    configuration = Configuration(".config")
-    brokerConfig = configuration.GetBrokerConfiguration()
-    clientConfig = configuration.GetClientConfiguration()
+    config = LoadConfiguration()
+    mqttClient = mqtt.Client
+    myShell = shell.Shell(mqttClient=mqttClient, configuration=config)
 
+    myShell.Run()
 
     return 0
 
