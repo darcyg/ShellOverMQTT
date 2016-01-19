@@ -15,7 +15,9 @@ class Shell:
             raise TypeError("Configuration is None")
         self._name = name
         self._config = config
-        self._listeningTopicPrefix = "Shell/"
+        self._shellTopicPrefix = "Shell/"
+        self._shellListeningTopicSuffix = "/RXD"
+        self._shellSendingTopicSuffix = "/TXD"
         self._messageQueue = Queue()
         self._mqttClient = mqttClient
         self._mqttClient.on_connect = self._onConnectCallback
@@ -44,8 +46,9 @@ class Shell:
     def _handleNextMessage(self):
         try:
             msg = self._messageQueue.get(block=False)
-            print(msg.payload)
+            self._mqttClient.publish(self._buildShellSendingTopic(), str(msg.payload))
             #self._callSystemCommand(msg.payload)
+
         except queue.Empty:
             self._logger.warn("Queue is empty. Returning.")
 
@@ -64,7 +67,10 @@ class Shell:
         return rc
 
     def _buildShellListeningTopic(self):
-        return "".join([self._listeningTopicPrefix, self._name])
+        return "".join([self._shellTopicPrefix, self._name, self._shellListeningTopicSuffix])
+
+    def _buildShellSendingTopic(self):
+        return "".join([self._shellTopicPrefix, self._name, self._shellSendingTopicSuffix])
 
 
 
