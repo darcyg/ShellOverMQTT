@@ -35,6 +35,7 @@ def main():
     config = LoadConfiguration()
     hostname = socket.gethostname()
     mqttClient = mqtt.Client()
+    mqttClient.username_pw_set(config.Login, config.Password)
     myShell = shell.Shell(name=hostname, mqttClient=mqttClient, config=config)
 
     myShell.Run()
