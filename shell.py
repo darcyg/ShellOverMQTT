@@ -1,6 +1,6 @@
 import queue
 from queue import Queue
-from subprocess import check_output
+from subprocess import check_output, CalledProcessError
 import logging
 from mqtt.client import MQTT_LOG_DEBUG, MQTT_LOG_ERR, MQTT_LOG_INFO, MQTT_LOG_NOTICE, MQTT_LOG_WARNING
 
@@ -46,14 +46,19 @@ class Shell:
     def _handleNextMessage(self):
         try:
             msg = self._messageQueue.get(block=False)
-            self._mqttClient.publish(self._buildShellSendingTopic(), str(msg.payload))
-            #self._callSystemCommand(msg.payload)
+            #self._mqttClient.publish(self._buildShellSendingTopic(), str(msg.payload))
+            self._mqttClient.publish(self._buildShellSendingTopic(), str(self._callSystemCommand(msg.payload)))
 
         except queue.Empty:
             self._logger.warn("Queue is empty. Returning.")
 
+        except CalledProcessError:
+            self._logger.warn("Unknown command: " + str(msg.payload))
+            self._mqttClient.publish(self._buildShellSendingTopic(), "Unknown command")
+
+
     def _callSystemCommand(self, cmd):
-        output = check_output(cmd, shell=True)
+        return check_output(cmd, shell=True)
 
     def Run(self):
         self._mqttClient.connect(self._config.Address)
